@@ -5,7 +5,7 @@ try: import simplejson as json
 except ImportError: import json
 
 #read input file and return entries' Dict Object
-def readfile(file):
+def readfile(file, marshall=False):
     filecontent = []
     index = 0
     #check necessary file size checking
@@ -18,13 +18,13 @@ def readfile(file):
         for line in fileinput.input(file):
             index = index+1
             if line != "\n": #don't read newlines
-                filecontent.append(line2dict(line))
+                filecontent.append(line2dict(line, marshall))
 
         fileinput.close()
     return filecontent
 
 #gets a line of string from Log and convert it into Dict Object
-def line2dict(line):
+def line2dict(line, marshall):
     #Snippet, thanks to http://www.seehuhn.de/blog/52
     parts = [
     r'(?P<HOST>\S+)',                   # host %h
@@ -39,14 +39,26 @@ def line2dict(line):
 ]
     pattern = re.compile(r'\s+'.join(parts)+r'\s*\Z')
     m = pattern.match(line)
+    import sys
     res = m.groupdict()
+
+    if(marshall):
+        res2 = {}
+        for k in res :
+            t = 'S'
+            if(re.search(r'STATUS|SIZE', k, flags=re.IGNORECASE)):
+                t = 'N'
+            res2[k] = {}
+            res2[k][t] = res[k]
+        return res2
+        
     return res
 
 #to get jSon of entire Log
 #returns JSON object
-def toJson(file):
+def toJson(file, marshall=False):
     #get dict object for each entry
-    entries = readfile(file)
+    entries = readfile(file, marshall)
     return json.JSONEncoder().encode(entries)
 
     
