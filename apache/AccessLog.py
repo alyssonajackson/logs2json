@@ -6,7 +6,7 @@ except ImportError: import json
 
 #read input file and return entries' Dict Object
 def readfile(file):
-    filecontent = {}
+    filecontent = []
     index = 0
     #check necessary file size checking
     statinfo = os.stat(file)
@@ -18,7 +18,7 @@ def readfile(file):
         for line in fileinput.input(file):
             index = index+1
             if line != "\n": #don't read newlines
-                filecontent[index] = line2dict(line)
+                filecontent.append(line2dict(line))
 
         fileinput.close()
     return filecontent
